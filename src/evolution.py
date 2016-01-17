@@ -6,7 +6,7 @@ import random
 
 def getParent(source_node):
 	return __getParent(source_node, 0)
-	
+
 def __getParent(source_node, num_steps):
 	# recursively chooses an ansestor of source_node and returns it
 	if source_node.isInput:
