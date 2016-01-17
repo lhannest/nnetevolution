@@ -1,8 +1,16 @@
 from tools.uniquelist import UniqueList
 
+INNOVATION_NUMBER = 0
+
+def getNextInnovation():
+	global INNOVATION_NUMBER
+	INNOVATION_NUMBER += 1
+	return INNOVATION_NUMBER
+
 class Node(object):
 	def __init__(self):
-		self.__innovation = 0
+		# This number will be unique for every node if left untouched
+		self.innovation_number = getNextInnovation()
 
 		self.incoming = UniqueList()
 		self.outgoing = UniqueList()
@@ -17,4 +25,7 @@ class Node(object):
 
 	def __eq__(self, other):
 		if isinstance(other, Node):
-			return self.__innovation == other.__innovation
+			return self.innovation_number == other.innovation_number
+
+	def __repr__(self):
+		return 'Node[' + str(self.innovation_number) + ']'
