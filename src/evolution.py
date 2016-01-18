@@ -4,6 +4,8 @@
 ### -- This should have the effect of somewhat modularizing the neural network
 import random
 import pudb
+from node import Node
+from arc import Arc
 
 def getAncestor(node):
 	if node.isInput:
@@ -41,4 +43,9 @@ def __getDescendant(node, collection=[]):
 
 def addNode(node_collection):
 	source_node = random.choice(node_collection)
-	parent = getParent(source_node)
+	parent = getAncestor(source_node)
+	child = getDescendant(source_node)
+	new_node = Node()
+	Arc(parent, new_node)
+	Arc(new_node, child)
+	return new_node
