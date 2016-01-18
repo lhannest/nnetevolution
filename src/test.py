@@ -1,17 +1,24 @@
 from node import Node
 from arc import Arc
-from evolution import getParent
+from evolution import getAncestor, getDescendant
 
 import pudb
 
-a = Node()
-b = Node()
-c = Node()
-Arc(a, b)
-Arc(b, c)
+nodes = []
 
-print a, b, c
+for i in range(10):
+	nodes.append(Node())
+# 
+# pudb.set_trace()
+for p, c in zip(nodes[:-1], nodes[1:]):
+	Arc(p, c)
 
+choices = [0 for i in range(10)]
 
-pudb.set_trace()
-print getParent(a)
+for i in range(1000):
+	# pudb.set_trace()
+	node = getDescendant(nodes[3])
+	choices[node.innovation_number-1] += 1
+
+for i in range(10):
+	print i, round(choices[i] * 1.0 / 1000, 2)

@@ -3,23 +3,41 @@
 ### or the parent and child be a ancestor and decendant of some particular node in the network
 ### -- This should have the effect of somewhat modularizing the neural network
 import random
+import pudb
 
-def getParent(source_node):
-	return __getParent(source_node, 0)
-
-def __getParent(source_node, num_steps):
-	# recursively chooses an ansestor of source_node and returns it
-	if source_node.isInput:
-		return random.uniform(1, num_steps + 1)
-
-	arc = random.choice(source_node.incoming)
-	next_step = num_steps + 1
-	choice = getParent(arc.parent, next_step)
-
-	if choice == num_steps:
-		return source_node
+def getAncestor(node):
+	if node.isInput:
+		return node
 	else:
+		arc = random.choice(node.incoming)
+		return __getAncestor(arc.parent)
+
+def __getAncestor(node, collection=[]):
+	collection.append(node)
+
+	if node.isInput:
+		choice = random.choice(collection)
 		return choice
+
+	arc = random.choice(node.incoming)
+	return __getAncestor(arc.parent, collection)
+
+def getDescendant(node):
+	if node.isOutput:
+		return node
+	else:
+		arc = random.choice(node.outgoing)
+		return __getDescendant(arc.child)
+
+def __getDescendant(node, collection=[]):
+	collection.append(node)
+
+	if node.isOutput:
+		choice = random.choice(collection)
+		return choice
+
+	arc = random.choice(node.outgoing)
+	return __getDescendant(arc.child, collection)
 
 def addNode(node_collection):
 	source_node = random.choice(node_collection)
