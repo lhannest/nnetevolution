@@ -1,27 +1,36 @@
 from node import Node
 from arc import Arc
 from nnet import NNet
-from evolution import getAncestor, getDescendant, addNode
+from evolution import getAncestor, getDescendant, addNode, splitArc
+import networkx as nx
+import matplotlib.pyplot as plt
+import pylab
 
 import pudb
 
-nodes = []
-for i in range(3): nodes.append(Node())
-for p, c in zip(nodes[:-1], nodes[1:]): Arc(p, c)
+def makeTuple(arc):
+	return (str(arc.parent.innovation_number), str(arc.child.innovation_number))
+
+nodes = [Node() for i in range(3)]
+Arc(nodes[0], nodes[1])
+Arc(nodes[1], nodes[2])
 
 nnet = NNet(nodes)
-a = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
-b = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
-c = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
-d = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
-e = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
+for i in range(1):
+	n = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
+	nnet.hidden_layer.append(n)
+	n = splitArc(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
+	nnet.hidden_layer.append(n)
 
-nnet.hidden_layer.append(a)
-nnet.hidden_layer.append(b)
-nnet.hidden_layer.append(c)
-nnet.hidden_layer.append(d)
-nnet.hidden_layer.append(e)
+G = nx.DiGraph()
 
-print len(nnet.input_layer)
-print len(nnet.hidden_layer)
-print len(nnet.output_layer)
+arcs = []
+for n in nnet.nodes:
+	for a in n.incoming:
+		arcs.append(makeTuple(a))
+G.add_edges_from(arcs)
+
+pos = nx.spring_layout(G)
+nx.draw(G, pos)
+nx.draw_networkx_labels(G, pos)
+plt.show()

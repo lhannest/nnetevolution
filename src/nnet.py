@@ -21,6 +21,10 @@ class NNet(object):
 			else:
 				self.hidden_layer.append(node)
 
-	# def feedForward(self, inputs):
-	# 	inputs = fixData(inputs)
-	# 	assert len(inputs) == len(self.input_layer)
+	def feedForward(self, inputs):
+		inputs = fixData(inputs)
+		assert len(inputs) == len(self.input_layer)
+
+	@property
+	def nodes(self):
+		return tuple(self.input_layer + self.hidden_layer + self.output_layer)

@@ -49,3 +49,12 @@ def addNode(node_collection):
 	Arc(parent, new_node)
 	Arc(new_node, child)
 	return new_node
+
+def splitArc(node_collection):
+	node = random.choice(node_collection)
+	arc = random.choice(node.incoming + node.outgoing)
+	new_node = Node()
+	Arc(arc.parent, new_node)
+	Arc(new_node, arc.child)
+	del arc
+	return new_node
