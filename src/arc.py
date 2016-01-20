@@ -1,8 +1,15 @@
 from tools.uniquelist import UniqueList
+import node
 import numpy as np
+
+import pudb
 
 class Arc(object):
 	def __init__(self, parent, child):
+		assert type(parent) != node.OutputNode
+		assert type(child) != node.InputNode
+		assert type(child) != node.BiasNode
+
 		self.parent = parent
 		self.child = child
 		self.weight = np.random.randn()
@@ -22,6 +29,5 @@ class Arc(object):
 	def __repr__(self):
 		return 'Arc[' + str(self.parent) + ', ' + str(self.child) + ']'
 
-	def __del__(self):
-		self.parent.outgoing.remove(self)
-		self.child.outgoing.remove(self)
+def makeArc(parent, child):
+	Arc(parent, child)

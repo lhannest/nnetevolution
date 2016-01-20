@@ -4,29 +4,37 @@
 ### -- This should have the effect of somewhat modularizing the neural network
 import random
 import pudb
-from node import Node
+from node import HiddenNode, BiasNode
 from arc import Arc
+from node import InputNode, OutputNode, getGlobalBiasNode
 from nnet import NNet
 
 def getAncestor(node):
-	if node.isInput:
+	if type(node) is InputNode:
 		return node
 	else:
-		arc = random.choice(node.incoming)
+		arc = random.choice(fix_arc_list(node.incoming))
 		return __getAncestor(arc.parent)
 
 def __getAncestor(node, collection=[]):
 	collection.append(node)
 
-	if node.isInput:
+	if type(node) is InputNode:
 		choice = random.choice(collection)
 		return choice
 
-	arc = random.choice(node.incoming)
+	arc = random.choice(fix_arc_list(node.incoming))
 	return __getAncestor(arc.parent, collection)
 
+def fix_arc_list(arc_collection):
+	arcs = []
+	for arc in arc_collection:
+		if type(arc.parent) != BiasNode:
+			arcs.append(arc)
+	return arcs
+
 def getDescendant(node):
-	if node.isOutput:
+	if type(node) is OutputNode:
 		return node
 	else:
 		arc = random.choice(node.outgoing)
@@ -35,7 +43,7 @@ def getDescendant(node):
 def __getDescendant(node, collection=[]):
 	collection.append(node)
 
-	if node.isOutput:
+	if type(node) is OutputNode:
 		choice = random.choice(collection)
 		return choice
 
@@ -46,7 +54,7 @@ def addNode(node_collection):
 	source_node = random.choice(node_collection)
 	parent = getAncestor(source_node)
 	child = getDescendant(source_node)
-	new_node = Node()
+	new_node = HiddenNode()
 	Arc(parent, new_node)
 	Arc(new_node, child)
 	return new_node
@@ -54,7 +62,7 @@ def addNode(node_collection):
 def splitArc(node_collection):
 	node = random.choice(node_collection)
 	arc = random.choice(node.incoming + node.outgoing)
-	new_node = Node()
+	new_node = HiddenNode()
 	Arc(arc.parent, new_node)
 	Arc(new_node, arc.child)
 	del arc
@@ -62,10 +70,11 @@ def splitArc(node_collection):
 
 def copy(nnet):
 	nodes = [node.copy() for node in nnet.nodes]
+	nodes_with_bias = nodes + [getGlobalBiasNode()]
 	arcs = []
 	for arc in getArcs(nnet):
-		parent = getMember(arc.parent, nodes)
-		child = getMember(arc.child, nodes)
+		parent = getMember(arc.parent, nodes_with_bias)
+		child = getMember(arc.child, nodes_with_bias)
 		arc.copy(parent, child)
 	return NNet(nodes)
 

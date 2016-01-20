@@ -1,4 +1,4 @@
-from node import Node
+from node import InputNode, HiddenNode, OutputNode
 from arc import Arc
 from nnet import NNet
 from evolution import getAncestor, getDescendant, addNode, splitArc, copy
@@ -11,12 +11,17 @@ import pudb
 def makeTuple(arc):
 	return (str(arc.parent.innovation_number), str(arc.child.innovation_number))
 
-nodes = [Node() for i in range(3)]
-Arc(nodes[0], nodes[1])
-Arc(nodes[1], nodes[2])
 
-# pudb.set_trace()
-nnet = NNet(nodes)
+a = InputNode()
+b = HiddenNode()
+c = OutputNode()
+Arc(a, b)
+Arc(b, c)
+
+print a.__repr__(), b.__repr__(), c.__repr__()
+
+nnet = NNet([a, b, c])
+
 for i in range(1):
 	n = addNode(nnet.input_layer + nnet.hidden_layer + nnet.output_layer)
 	nnet.hidden_layer.append(n)

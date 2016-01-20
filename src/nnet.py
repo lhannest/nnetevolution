@@ -1,5 +1,4 @@
-from node import Node, BiasNode
-from arc import Arc
+from node import InputNode, HiddenNode, OutputNode
 
 def fixData(d):
 	if isinstance(d, (list, tuple)):
@@ -8,18 +7,20 @@ def fixData(d):
 		return [d]
 
 class NNet(object):
-	def __init__(self, nodes):
+	def __init__(self, node_collection):
 		self.input_layer = []
 		self.hidden_layer = []
 		self.output_layer = []
 
-		for node in nodes:
-			if node.isInput:
+		for node in node_collection:
+			if type(node) is InputNode:
 				self.input_layer.append(node)
-			elif node.isOutput:
+			elif type(node) is HiddenNode:
 				self.output_layer.append(node)
-			else:
+			elif type(node) is OutputNode:
 				self.hidden_layer.append(node)
+			else:
+				assert False, "node_collection cannot contain object of type " + str(type(node)) + "."
 
 	def feedForward(self, inputs):
 		inputs = fixData(inputs)
