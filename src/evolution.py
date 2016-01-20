@@ -6,6 +6,7 @@ import random
 import pudb
 from node import Node
 from arc import Arc
+from nnet import NNet
 
 def getAncestor(node):
 	if node.isInput:
@@ -58,3 +59,25 @@ def splitArc(node_collection):
 	Arc(new_node, arc.child)
 	del arc
 	return new_node
+
+def copy(nnet):
+	nodes = [node.copy() for node in nnet.nodes]
+	arcs = []
+	for arc in getArcs(nnet):
+		parent = getMember(arc.parent, nodes)
+		child = getMember(arc.child, nodes)
+		arc.copy(parent, child)
+	return NNet(nodes)
+
+def getMember(obj, collection):
+	for item in collection:
+		if obj == item:
+			return item
+	assert False, str(obj) + ' is not in ' + str(collection)
+
+def getArcs(nnet):
+	arcs = []
+	for node in nnet.nodes:
+		for arc in node.incoming:
+			arcs.append(arc)
+	return arcs
