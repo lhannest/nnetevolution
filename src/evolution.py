@@ -7,7 +7,7 @@ import pudb
 from node import HiddenNode, BiasNode
 from arc import Arc
 from node import InputNode, OutputNode, getGlobalBiasNode
-from nnet import NNet
+from neuralnetwork import NNet
 
 def getAncestor(node):
 	if type(node) is InputNode:
