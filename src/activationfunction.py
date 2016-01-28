@@ -7,6 +7,15 @@ import math
 ###
 ### where f(x) is the function you are trying to implement, and f'(x) is the derivative of f(x).
 
+def s_linear(x):
+	if x >= 0 and x <= 1:
+		y = x
+		d = 1
+	else:
+		y = 0
+		d = 0
+	return y, d
+
 def relu(x):
 	return max(0, x), (x > 0) * 1
 

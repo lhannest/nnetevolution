@@ -69,8 +69,11 @@ class NNet(object):
 
 		outputs = self.feedForward(inputs)
 
+		sqr_error = 0
+
 		for i, node in enumerate(self.output_layer):
 			node.error = outputs[i] - targets[i]
+			sqr_error += node.error**2
 
 		for node in self.input_layer:
 			error(node, False)
@@ -78,6 +81,8 @@ class NNet(object):
 		for node in self.hidden_layer + self.output_layer:
 			for arc in node.incoming:
 				arc.weight -= step_size * arc.parent.output * arc.child.error
+
+		return sqr_error/2
 
 	@property
 	def nodes(self):
