@@ -17,8 +17,3 @@ def draw(nnet):
 	nx.draw(G, pos)
 	nx.draw_networkx_labels(G, pos)
 	plt.show()
-
-
-nnet = makeNNet(2, 3, 1)
-
-draw(nnet)
