@@ -3,11 +3,24 @@ from arc import Arc
 from activationfunction import sigmoid, linear
 import pudb
 
-def fixData(d):
-	if isinstance(d, (list, tuple)):
-		return d
-	else:
-		return [d]
+def makeSquareConvolution(cluster_size, output_count, fn=sigmoid):
+	input_grid = [[InputNode() for i in range(cluster_size*output_count)] for j in range(cluster_size*output_count)]
+	output_grid = [[OutputNode(fn) for i in range(output_count)] for j in range(output_count)]
+
+	for i, row in enumerate(input_grid):
+		for j, _ in enumerate(row):
+			parent = input_grid[i][j]
+			child = output_grid[i/cluster_size][j/cluster_size]
+			parent.connect(child)
+			
+	input_layer = []
+	output_layer = []
+	for row in input_grid:
+		input_layer = input_layer + row
+	for row in output_grid:
+		output_layer = output_layer + row
+
+	return NNet(input_layer + output_layer)
 
 def makeNNet(input_size, hidden_size, output_size, f1=sigmoid, f2=linear):
 	assert input_size >= 1 and hidden_size >= 1 and output_size >= 1
@@ -111,3 +124,9 @@ def error(node, time):
 			weighted_sum += error(arc.child, time) * arc.weight
 		node.error = weighted_sum * node.derivative
 		return node.error
+
+def fixData(d):
+	if isinstance(d, (list, tuple)):
+		return d
+	else:
+		return [d]
