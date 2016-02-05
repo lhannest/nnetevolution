@@ -2,6 +2,7 @@ from node import InputNode, HiddenNode, OutputNode, BiasNode
 from arc import Arc
 from activationfunction import sigmoid, linear
 import pudb
+import numpy as np
 
 def makeSquareConvolution(cluster_size, output_count, fn=sigmoid):
 	input_grid = [[InputNode() for i in range(cluster_size*output_count)] for j in range(cluster_size*output_count)]
@@ -94,6 +95,8 @@ class NNet(object):
 				self.output_layer.append(node)
 			else:
 				assert False, "node_collection cannot contain object of type " + str(type(node)) + "."
+	def __repr__(self):
+		return 'NNet[' + str(len(self.input_layer)) + ', ' + str(len(self.hidden_layer)) + ', ' + str(len(self.output_layer)) + ']'
 
 	def feedForward(self, inputs):
 		inputs = fixData(inputs)
@@ -175,7 +178,7 @@ def _recursively_set_error(node, time):
 		return node.error
 
 def fixData(d):
-	if isinstance(d, (list, tuple)):
+	if isinstance(d, (list, tuple, np.ndarray)):
 		return d
 	else:
 		return [d]

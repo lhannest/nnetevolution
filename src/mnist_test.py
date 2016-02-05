@@ -16,7 +16,13 @@ b = neuralnetwork.makeSquareConvolution(2, 7)
 
 nnet = neuralnetwork.makeNNet(49, 50, 10)
 
-nnet.backpropError([2 for i in range(10)])
+deepnet = neuralnetwork.DeepNet([a, b, nnet])
 
 for x, t in zip(inputs, targets):
-	None
+	pudb.set_trace()
+	deepnet.learn(x, t)
+
+
+for x in inputs:
+	print deepnet.feedForward(x)
+	mnist.show(x)
