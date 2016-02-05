@@ -12,7 +12,7 @@ def makeSquareConvolution(cluster_size, output_count, fn=sigmoid):
 			parent = input_grid[i][j]
 			child = output_grid[i/cluster_size][j/cluster_size]
 			parent.connect(child)
-			
+
 	input_layer = []
 	output_layer = []
 	for row in input_grid:
@@ -42,6 +42,39 @@ def makeNNet(input_size, hidden_size, output_size, f1=sigmoid, f2=linear):
 			Arc(p, c)
 
 	return NNet(inputs + hidden + outputs)
+
+class DeepNet(object):
+	def __init__(self, sub_nets):
+		self.sub_nets = []
+
+		for i, nnet in enumerate(sub_nets):
+			assert type(nnet) == NNet, "type of sub_nets[" + str(i) + "] is " + str(type(nnet)) + ", must be " + str(NNet)
+			if i != 0:
+				error_message = "sub_nets[" + str(i) + " does not have as many inputs as its predecessor has outputs"
+				assert len(nnet.input_layer) == len(sub_nets[i-1].output_layer), error_message
+			self.sub_nets.append(nnet)
+
+	def feedForward(self, inputs):
+		for nnet in self.sub_nets:
+			inputs = nnet.feedForward(inputs)
+		return inputs
+
+	def learn(self, inputs, targets, step_size=1):
+		inputs = fixData(inputs)
+		targets = fixData(targets)
+
+		outputs = self.feedForward(inputs)
+		errors = [y - t for y, t in zip(outputs, targets)]
+		sqr_error = [e**2 for e in errors]
+
+		for nnet in reversed(self.sub_nets):
+			errors = nnet.backpropError(errors)
+
+		for nnet in self.sub_nets:
+			nnet.updateWeights(step_size)
+
+		return sqr_error
+
 
 
 class NNet(object):
@@ -73,35 +106,51 @@ class NNet(object):
 		for i, node in enumerate(self.input_layer):
 			node.output = inputs[i]
 
-		return [output(node, True) for node in self.output_layer]
+		return [_recursively_get_output(node, True) for node in self.output_layer]
 
 	def learn(self, inputs, targets, step_size=1):
 		targets = fixData(targets)
 		error_message = "len(targets) is " + str(len(targets)) + ", expected " + str(len(self.output_layer)) + "."
 		assert len(targets) == len(self.output_layer), error_message
 
+		pudb.set_trace()
 		outputs = self.feedForward(inputs)
 
 		sqr_error = 0
+		errors = [y - t for y, t in zip(outputs, targets)]
+		for err in errors:
+			sqr_error += err**2
+
+		pudb.set_trace()
+
+		self.backpropError(errors)
+		self.updateWeights(step_size)
+
+		return sqr_error/2
+
+	def backpropError(self, errors):
+		# pudb.set_trace()
+		for node in self.nodes:
+			node.last_visited = True
 
 		for i, node in enumerate(self.output_layer):
-			node.error = outputs[i] - targets[i]
-			sqr_error += node.error**2
+			node.error = errors[i]
 
 		for node in self.input_layer:
-			error(node, False)
+			_recursively_set_error(node, False)
 
+		return [node.error for node in self.input_layer]
+
+	def updateWeights(self, step_size=1):
 		for node in self.hidden_layer + self.output_layer:
 			for arc in node.incoming:
 				arc.weight -= step_size * arc.parent.output * arc.child.error
-
-		return sqr_error/2
 
 	@property
 	def nodes(self):
 		return tuple(self.input_layer + self.hidden_layer + self.output_layer)
 
-def output(node, time):
+def _recursively_get_output(node, time):
 	if type(node) == InputNode or type(node) == BiasNode or node.last_visited == time:
 		node.last_visited = time
 		return node.output
@@ -109,11 +158,11 @@ def output(node, time):
 		node.last_visited = time
 		weighted_sum = 0
 		for arc in node.incoming:
-			weighted_sum += output(arc.parent, time) * arc.weight
+			weighted_sum += _recursively_get_output(arc.parent, time) * arc.weight
 		node.output, node.derivative = node.activationFunction(weighted_sum)
 		return node.output
 
-def error(node, time):
+def _recursively_set_error(node, time):
 	if type(node) == OutputNode or node.last_visited == time:
 		node.last_visited = time
 		return node.error
@@ -121,7 +170,7 @@ def error(node, time):
 		node.last_visited = time
 		weighted_sum = 0
 		for arc in node.outgoing:
-			weighted_sum += error(arc.child, time) * arc.weight
+			weighted_sum += _recursively_set_error(arc.child, time) * arc.weight
 		node.error = weighted_sum * node.derivative
 		return node.error
 

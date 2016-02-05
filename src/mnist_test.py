@@ -16,5 +16,7 @@ b = neuralnetwork.makeSquareConvolution(2, 7)
 
 nnet = neuralnetwork.makeNNet(49, 50, 10)
 
+nnet.backpropError([2 for i in range(10)])
+
 for x, t in zip(inputs, targets):
 	None
