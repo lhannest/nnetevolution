@@ -66,15 +66,12 @@ class DeepNet(object):
 
 		outputs = self.feedForward(inputs)
 		errors = [y - t for y, t in zip(outputs, targets)]
-		sqr_error = [e**2 for e in errors]
 
 		for nnet in reversed(self.sub_nets):
 			errors = nnet.backpropError(errors)
 
 		for nnet in self.sub_nets:
 			nnet.updateWeights(step_size)
-
-		return sqr_error
 
 
 
@@ -124,7 +121,7 @@ class NNet(object):
 		for err in errors:
 			sqr_error += err**2
 
-		pudb.set_trace()
+		# pudb.set_trace()
 
 		self.backpropError(errors)
 		self.updateWeights(step_size)
